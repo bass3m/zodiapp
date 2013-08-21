@@ -1,4 +1,4 @@
-(ns zodiapp.utils
+(ns zodiapp.zodiac
   (:require [clojure.xml :as xml]
             [clojure.zip :as zip]))
 
