@@ -18,7 +18,9 @@
 (defn get-sentiments
   [hs ctx]
   (->> hs
-       (map (fn [h] (assoc h :sentiment (future (get-sentiment h ctx)))))))
+       (map (fn [h] (assoc h :raw-sentiment (future (get-sentiment h ctx)))))
+       (map (fn [h] (assoc h :sentiment ((comp :score deref :raw-sentiment) h))))
+       (map (fn [h] (dissoc h :raw-sentiment h)))))
 
 (defn all-zods
   "check db first"
