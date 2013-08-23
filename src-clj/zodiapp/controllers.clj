@@ -21,13 +21,13 @@
   (->> hs
        (map (fn [h] (assoc h :raw-sentiment (future (get-sentiment h ctx)))))
        (map (fn [h] (assoc h :sentiment ((comp :score deref :raw-sentiment) h))))
-       (map (fn [h] (dissoc h :raw-sentiment h)))))
+       (map (fn [h] (dissoc h :raw-sentiment)))))
 
 (defn all-zods
   "check db first"
   [_ ctx]
-  (or (m/get-todays)
-      (-> (:astrology-params ctx)
+  (or (m/get-todays ctx)
+      (-> ctx
           z/get-horoscopes
           (get-sentiments ctx)
-          m/save-horoscopes)))
+          (m/save-horoscopes ctx))))

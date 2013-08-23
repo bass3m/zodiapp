@@ -30,7 +30,7 @@
 (defn get-horoscopes
   "Parse xml and keep only relavent parts of horoscope"
   [cfg]
-  (->> (xml/parse (:astro-src cfg))
+  (->> (xml/parse (-> cfg :astrology-params :astro-src))
        zip/xml-zip
        zip/down
        zip/children
