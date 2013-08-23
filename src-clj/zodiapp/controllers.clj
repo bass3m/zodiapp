@@ -1,6 +1,7 @@
 (ns zodiapp.controllers
   (:require [clj-http.client :as http :only (post)]
             [clojure.data.json :as json :only (read-str write-str)]
+            [zodiapp.models :as m]
             [zodiapp.zodiac :as z]))
 
 (defn get-sentiment
@@ -24,7 +25,9 @@
 
 (defn all-zods
   "check db first"
-  [req ctx]
-  (-> (:astrology-params ctx)
-      z/get-horoscopes
-      (get-sentiments ctx)))
+  [_ ctx]
+  (or (m/get-todays)
+      (-> (:astrology-params ctx)
+          z/get-horoscopes
+          (get-sentiments ctx)
+          m/save-horoscopes)))
