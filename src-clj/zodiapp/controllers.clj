@@ -30,4 +30,5 @@
       (-> ctx
           z/get-horoscopes
           (get-sentiments ctx)
-          (m/save-horoscopes ctx))))
+          (m/save-horoscopes ctx)
+          ((constantly (m/get-todays ctx))))))
