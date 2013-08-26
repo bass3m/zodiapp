@@ -1,6 +1,5 @@
 (ns zodiapp.core
   (:require [goog.net.XhrIo :as xhr]
-            ;[goog.events :as events]
             [goog.json :as json]))
 
 (defn log [& more]
@@ -15,8 +14,8 @@
 (defn get-dimesions
   []
   (let [margin    {:top 50 :right 0 :bottom 100 :left 30}
-        width     (- 960 (+ (:left margin) (:right margin)))
-        height    (- 500 (+ (:top margin) (:bottom margin)))
+        width     (- 800 (+ (:left margin) (:right margin)))
+        height    (- 640 (+ (:top margin) (:bottom margin)))
         grid-sz   (Math.floor (/ (min height width) 4))
         legend-sz (* 2 grid-sz)
         padding   2]
@@ -124,27 +123,26 @@
         signs       (into-array (mapcat keys signs-ucode))
         sentiments  (into-array (map (partial get-sign-sentiment dataset) signs))
         color-scale (calc-color-range sentiments colors)
-        svg         (create-svg dimensions)
-        vis         (.. svg
-                        (selectAll "rect")
-                        (data signs)
-                        (enter)
-                        (append "rect")
-                        (attr "x" (fn [_ i] (* (rem i 4)
-                                               (+ (:grid-sz dimensions)
-                                                  (:padding dimensions)))))
-                        (attr "y" (fn [_ i] (* (quot i 4)
-                                               (+ (:grid-sz dimensions)
-                                                  (:padding dimensions)))))
-                        (attr "rx" 4)
-                        (attr "ry" 4)
-                        (attr "width" (:grid-sz dimensions))
-                        (attr "height" (:grid-sz dimensions))
-                        (style "fill" (fn [d]
-                                        (color-scale (get-sign-sentiment dataset d)))))
-        ttips (create-tooltips dataset)
-        labels (create-labels svg dimensions signs-ucode)
-        ]
+        svg         (create-svg dimensions)]
+    (.. svg
+        (selectAll "rect")
+        (data signs)
+        (enter)
+        (append "rect")
+        (attr "x" (fn [_ i] (* (rem i 4)
+                               (+ (:grid-sz dimensions)
+                                 (:padding dimensions)))))
+        (attr "y" (fn [_ i] (* (quot i 4)
+                               (+ (:grid-sz dimensions)
+                                 (:padding dimensions)))))
+        (attr "rx" 4)
+        (attr "ry" 4)
+        (attr "width" (:grid-sz dimensions))
+        (attr "height" (:grid-sz dimensions))
+        (style "fill" (fn [d]
+                        (color-scale (get-sign-sentiment dataset d)))))
+    (create-tooltips dataset)
+    (create-labels svg dimensions signs-ucode)
     (.log js/console signs)
     (.log js/console labels)
     (.log js/console (into-array (mapcat vals signs-ucode)))
