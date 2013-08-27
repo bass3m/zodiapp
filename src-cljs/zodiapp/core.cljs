@@ -98,8 +98,8 @@
 
 (defn create-legend
   [svg dimensions colors]
-  (let [sad "☹"
-        happy "☺"
+  (let [sad "☹ .. less lucky"
+        happy "more lucky .. ☺"
         legend (.. svg
                    (selectAll ".legend")
                    (data (into-array colors))
@@ -113,10 +113,23 @@
       ]
     (.. legend
         (append "rect")
-        (attr "x" (fn [d i] (* (/ (:grid-sz dimensions) 4) i)))
-        (attr "width" (/ (:grid-sz dimensions) 4))
+        (attr "x" (fn [d i] (* (/ (:grid-sz dimensions) 3) i)))
+        (attr "width" (/ (:grid-sz dimensions) 3))
         (attr "height" (/ (:grid-sz dimensions) 4))
-        (style "fill" (fn [_ i] (colors i)))
+        (style "fill" (fn [_ i] (colors i))))
+
+    (.. legend
+        (append "text")
+        (attr "class" "legend-key")
+        (text (fn [d i]
+                (cond
+                  (= i 0) sad
+                  (= i 8) happy)))
+        (attr "x" (fn [d i] (* (/ (:grid-sz dimensions) 4) i)))
+        (attr "y" (+ (/ (:grid-sz dimensions) 3)
+                     (* (:padding dimensions) 2)))
+        (attr "font-size" "18px")
+        (style "fill" "#aaa")
     )))
 
 (defn create-labels
