@@ -27,10 +27,8 @@
      :padding   padding}))
 
 (defn calc-color-range
-  [dataset]
-  (let [colors      ["#D73027" "#F46D43" "#FDAE61" "#FEE08B" "#FFFFBF"
-                     "#D9EF8B" "#A6D96A" "#66BD63" "#1A9850"]
-        dataset-min (-> js/d3 (.min dataset (fn [d] d)))
+  [dataset colors]
+  (let [dataset-min (-> js/d3 (.min dataset (fn [d] d)))
         dataset-max (-> js/d3 (.max dataset (fn [d] d)))]
     (-> js/d3
         .-scale
@@ -98,6 +96,29 @@
                            (select "#tooltip")
                            (classed "hidden" true))))))
 
+(defn create-legend
+  [svg dimensions colors]
+  (let [sad "☹"
+        happy "☺"
+        legend (.. svg
+                   (selectAll ".legend")
+                   (data (into-array colors))
+                   (enter)
+                   (append "g")
+                   (attr "class" "legend")
+                   (attr "transform" (format "translate(%d, %d)"
+                                      0
+                                      (+ (* 3 (:padding dimensions))
+                                         (* 3 (:grid-sz dimensions))))))
+      ]
+    (.. legend
+        (append "rect")
+        (attr "x" (fn [d i] (* (/ (:grid-sz dimensions) 4) i)))
+        (attr "width" (/ (:grid-sz dimensions) 4))
+        (attr "height" (/ (:grid-sz dimensions) 4))
+        (style "fill" (fn [_ i] (colors i)))
+    )))
+
 (defn create-labels
   [svg dimensions signs]
   (let [dates [{"Aries" "3/21-3/20"} {"Taurus" "4/21-5/21"} {"Gemini" "5/22-6/21"}
@@ -150,7 +171,9 @@
                      {"Capricorn" "♑"} {"Aquarius" "♒"} {"Pisces" "♓"}]
         signs       (into-array (mapcat keys signs-ucode))
         sentiments  (into-array (map (partial get-sign-sentiment dataset) signs))
-        color-scale (calc-color-range sentiments)
+        colors      ["#D73027" "#F46D43" "#FDAE61" "#FEE08B" "#FFFFBF"
+                     "#D9EF8B" "#A6D96A" "#66BD63" "#1A9850"]
+        color-scale (calc-color-range sentiments colors)
         svg         (create-svg dimensions)]
     (.. svg
         (selectAll "rect")
@@ -170,7 +193,8 @@
         (style "fill" (fn [d]
                         (color-scale (get-sign-sentiment dataset d)))))
     (create-tooltips dataset)
-    (create-labels svg dimensions signs-ucode)))
+    (create-labels svg dimensions signs-ucode)
+    (create-legend svg dimensions colors)))
 
 (defn extract-dataset
   [data]
