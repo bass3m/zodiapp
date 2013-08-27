@@ -114,9 +114,8 @@
         (append "rect")
         (attr "x" (fn [_ i] (* (/ (:grid-sz dimensions) 4) i)))
         (attr "width" (/ (:grid-sz dimensions) 4))
-        (attr "height" (/ (:grid-sz dimensions) 4))
+        (attr "height" (/ (:grid-sz dimensions) 8))
         (style "fill" (fn [_ i] (colors i))))
-
     (.. legend
         (append "text")
         (attr "class" "legend-key")
@@ -134,14 +133,15 @@
                       (or (= i 0) (= i 8))
                           (+ (/ (:grid-sz dimensions) 14)
                              (* (/ (:grid-sz dimensions) 4) i))
-                      :default (* (/ (:grid-sz dimensions) 4) i))))
-        (attr "y" (+ (/ (:grid-sz dimensions) 3)
-                     (* (:padding dimensions) 4)))
+                      :default (* (/ (:grid-sz dimensions) 4) i))
+                    ))
+        (attr "y" (+ (/ (:grid-sz dimensions) 4)
+                     (* (:padding dimensions) 2)))
         (attr "font-size"
               (fn [_ i]
                 (cond
                   (or (= i 0) (= i 8)) "22px"
-                  :default "12px")))
+                  :default "10px")))
         (style "fill" (fn [_ i]
                         (cond
                           (= i 0) "red"
