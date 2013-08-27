@@ -108,13 +108,12 @@
                    (attr "class" "legend")
                    (attr "transform" (format "translate(%d, %d)"
                                       0
-                                      (+ (* 3 (:padding dimensions))
-                                         (* 3 (:grid-sz dimensions))))))
-      ]
+                                      (+ (* 9 (:padding dimensions))
+                                         (* 3 (:grid-sz dimensions))))))]
     (.. legend
         (append "rect")
-        (attr "x" (fn [d i] (* (/ (:grid-sz dimensions) 3) i)))
-        (attr "width" (/ (:grid-sz dimensions) 3))
+        (attr "x" (fn [_ i] (* (/ (:grid-sz dimensions) 4) i)))
+        (attr "width" (/ (:grid-sz dimensions) 4))
         (attr "height" (/ (:grid-sz dimensions) 4))
         (style "fill" (fn [_ i] (colors i))))
 
@@ -123,14 +122,31 @@
         (attr "class" "legend-key")
         (text (fn [d i]
                 (cond
-                  (= i 0) sad
-                  (= i 8) happy)))
-        (attr "x" (fn [d i] (* (/ (:grid-sz dimensions) 4) i)))
+                  (= i 0) "☹"
+                  (= i 1) "less"
+                  (= i 2) "lucky"
+                  (= i 6) "more"
+                  (= i 7) "lucky"
+                  (= i 8) "☺"
+                  :default ".")))
+        (attr "x" (fn [_ i]
+                    (cond
+                      (or (= i 0) (= i 8))
+                          (+ (/ (:grid-sz dimensions) 14)
+                             (* (/ (:grid-sz dimensions) 4) i))
+                      :default (* (/ (:grid-sz dimensions) 4) i))))
         (attr "y" (+ (/ (:grid-sz dimensions) 3)
-                     (* (:padding dimensions) 2)))
-        (attr "font-size" "18px")
-        (style "fill" "#aaa")
-    )))
+                     (* (:padding dimensions) 4)))
+        (attr "font-size"
+              (fn [_ i]
+                (cond
+                  (or (= i 0) (= i 8)) "22px"
+                  :default "12px")))
+        (style "fill" (fn [_ i]
+                        (cond
+                          (= i 0) "red"
+                          (= i 8) "green"
+                          :default "#aaa"))))))
 
 (defn create-labels
   [svg dimensions signs]
