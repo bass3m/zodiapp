@@ -82,8 +82,8 @@
                                                (select el)
                                                (attr "y")) "px"))
                          (select ".sign")
-                         (html (format "<p><em>%s   %s</em></p><p> %s</p>"
-                                       "&#x2653;" d (get-sign-horoscope dataset d)))
+                         (html (format "<p><strong><em>%s : </em></strong></p><p>%s</p>"
+                                        d (get-sign-horoscope dataset d)))
                          (transition)
                          (duration 2000)
                          (ease "linear")
@@ -98,29 +98,45 @@
 
 (defn create-labels
   [svg dimensions signs]
-  (.. svg
-      (selectAll "text")
-      (data (into-array (mapcat keys signs)))
-      (enter)
+  (let [sign (.. svg
+                 (selectAll ".sign")
+                 (data (into-array (keys signs)))
+                 (enter)
+                 (append "g")
+                 (attr "class" "sign")
+                 (attr "transform" (fn [_ i] (format "translate(%d, %d)"
+                                               (* (rem i 4)
+                                                  (+ (:grid-sz dimensions)
+                                                     (:padding dimensions)))
+                                               (* (quot i 4)
+                                                  (+ (:grid-sz dimensions)
+                                                     (:padding dimensions)))))))]
+    (.. sign
       (append "text")
+      (attr "class" "symbol")
+      (text  (fn [d] (signs d)))
+      (attr "fill" "black")
+      (attr "font-size" "24px")
+      (attr "x" (- (:grid-sz dimensions) 28))
+      (attr "y" (- (:grid-sz dimensions) 8)))
+    (.. sign
+      (append "text")
+      (attr "class" "name")
       (text (fn [d] (.substring d 0 2)))
       (attr "fill" "black")
-      (attr "dy" ".35em")
-      (attr "x" (fn [_ i] (+ 5 (* (rem i 4) (+ (:grid-sz dimensions)
-                                          (:padding dimensions))))))
-      (attr "y" (fn [_ i] (+ 10 (* (quot i 4) (+ (:grid-sz dimensions)
-                                           (:padding dimensions))))))))
+      (attr "x" 8)
+      (attr "y" 18))))
 
 (defn create-vis
   [dataset]
   (let [colors      ["#D73027" "#F46D43" "#FDAE61" "#FEE08B" "#FFFFBF"
                      "#D9EF8B" "#A6D96A" "#66BD63" "#1A9850"]
         dimensions  (get-dimesions)
-        signs-ucode [{"Aries" "&#x2648;"} {"Taurus" "&#x2649;"} {"Gemini" "&#x264A;"}
-                     {"Cancer" "&#x264B;"} {"Leo" "&#x264C;"} {"Virgo" "&#x264D;"}
-                     {"Libra" "&#x264E;"} {"Scorpio" "&#x264F;"} {"Sagittarius" "&#x2650;"}
-                     {"Capricorn" "&#x2651;"} {"Aquarius" "&#x2652;"} {"Pisces" "&#x2653;"}]
-        signs       (into-array (mapcat keys signs-ucode))
+        signs-ucode {"Aries" "♈" "Taurus" "♉" "Gemini" "♊"
+                     "Cancer" "♋" "Leo" "♌" "Virgo" "♍"
+                     "Libra" "♎" "Scorpio" "♏" "Sagittarius" "♐"
+                     "Capricorn" "♑" "Aquarius" "♒" "Pisces" "♓"}
+        signs       (into-array (keys signs-ucode))
         sentiments  (into-array (map (partial get-sign-sentiment dataset) signs))
         color-scale (calc-color-range sentiments colors)
         svg         (create-svg dimensions)]
@@ -143,9 +159,8 @@
                         (color-scale (get-sign-sentiment dataset d)))))
     (create-tooltips dataset)
     (create-labels svg dimensions signs-ucode)
-    (.log js/console signs)
-    (.log js/console labels)
-    (.log js/console (into-array (mapcat vals signs-ucode)))
+    ;(.log js/console signs-ucode)
+    ;(.log js/console (into-array (vals signs-ucode)))
     ))
 
 (defn extract-dataset
