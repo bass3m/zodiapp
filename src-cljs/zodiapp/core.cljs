@@ -27,8 +27,10 @@
      :padding   padding}))
 
 (defn calc-color-range
-  [dataset colors]
-  (let [dataset-min (-> js/d3 (.min dataset (fn [d] d)))
+  [dataset]
+  (let [colors      ["#D73027" "#F46D43" "#FDAE61" "#FEE08B" "#FFFFBF"
+                     "#D9EF8B" "#A6D96A" "#66BD63" "#1A9850"]
+        dataset-min (-> js/d3 (.min dataset (fn [d] d)))
         dataset-max (-> js/d3 (.max dataset (fn [d] d)))]
     (-> js/d3
         .-scale
@@ -98,7 +100,11 @@
 
 (defn create-labels
   [svg dimensions signs]
-  (let [sign (.. svg
+  (let [dates [{"Aries" "3/21-3/20"} {"Taurus" "4/21-5/21"} {"Gemini" "5/22-6/21"}
+               {"Cancer" "6/22-7/22"} {"Leo" "7/23-8/22"} {"Virgo" "8/23-9/22"}
+               {"Libra" "9/23-10/22"} {"Scorpio" "10/23-11/22"} {"Sagittarius" "11/23-12/21"}
+               {"Capricorn" "12/22-1/20"} {"Aquarius" "1/21-2/19"} {"Pisces" "2/20-3/20"}]
+        sign (.. svg
                  (selectAll ".sign")
                  (data (into-array (mapcat keys signs)))
                  (enter)
@@ -125,20 +131,26 @@
       (text (fn [d] (.substring d 0 2)))
       (attr "fill" "black")
       (attr "x" 8)
-      (attr "y" 18))))
+      (attr "y" 18))
+    (.. sign
+      (append "text")
+      (attr "class" "date")
+      (text  (fn [d] (->> dates (filter d) first vals first)))
+      (attr "fill" "black")
+      (attr "font-size" "11px")
+      (attr "x"  6)
+      (attr "y" (- (:grid-sz dimensions) 12)))))
 
 (defn create-vis
   [dataset]
-  (let [colors      ["#D73027" "#F46D43" "#FDAE61" "#FEE08B" "#FFFFBF"
-                     "#D9EF8B" "#A6D96A" "#66BD63" "#1A9850"]
-        dimensions  (get-dimesions)
+  (let [dimensions  (get-dimesions)
         signs-ucode [{"Aries" "♈"} {"Taurus" "♉"} {"Gemini" "♊"}
                      {"Cancer" "♋"} {"Leo" "♌"} {"Virgo" "♍"}
                      {"Libra" "♎"} {"Scorpio" "♏"} {"Sagittarius" "♐"}
                      {"Capricorn" "♑"} {"Aquarius" "♒"} {"Pisces" "♓"}]
         signs       (into-array (mapcat keys signs-ucode))
         sentiments  (into-array (map (partial get-sign-sentiment dataset) signs))
-        color-scale (calc-color-range sentiments colors)
+        color-scale (calc-color-range sentiments)
         svg         (create-svg dimensions)]
     (.. svg
         (selectAll "rect")
