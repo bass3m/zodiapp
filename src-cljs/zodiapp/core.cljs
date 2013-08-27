@@ -100,7 +100,7 @@
   [svg dimensions signs]
   (let [sign (.. svg
                  (selectAll ".sign")
-                 (data (into-array (keys signs)))
+                 (data (into-array (mapcat keys signs)))
                  (enter)
                  (append "g")
                  (attr "class" "sign")
@@ -114,7 +114,7 @@
     (.. sign
       (append "text")
       (attr "class" "symbol")
-      (text  (fn [d] (signs d)))
+      (text  (fn [d] (->> signs (filter d) first vals first)))
       (attr "fill" "black")
       (attr "font-size" "24px")
       (attr "x" (- (:grid-sz dimensions) 28))
@@ -132,11 +132,11 @@
   (let [colors      ["#D73027" "#F46D43" "#FDAE61" "#FEE08B" "#FFFFBF"
                      "#D9EF8B" "#A6D96A" "#66BD63" "#1A9850"]
         dimensions  (get-dimesions)
-        signs-ucode {"Aries" "♈" "Taurus" "♉" "Gemini" "♊"
-                     "Cancer" "♋" "Leo" "♌" "Virgo" "♍"
-                     "Libra" "♎" "Scorpio" "♏" "Sagittarius" "♐"
-                     "Capricorn" "♑" "Aquarius" "♒" "Pisces" "♓"}
-        signs       (into-array (keys signs-ucode))
+        signs-ucode [{"Aries" "♈"} {"Taurus" "♉"} {"Gemini" "♊"}
+                     {"Cancer" "♋"} {"Leo" "♌"} {"Virgo" "♍"}
+                     {"Libra" "♎"} {"Scorpio" "♏"} {"Sagittarius" "♐"}
+                     {"Capricorn" "♑"} {"Aquarius" "♒"} {"Pisces" "♓"}]
+        signs       (into-array (mapcat keys signs-ucode))
         sentiments  (into-array (map (partial get-sign-sentiment dataset) signs))
         color-scale (calc-color-range sentiments colors)
         svg         (create-svg dimensions)]
@@ -158,10 +158,7 @@
         (style "fill" (fn [d]
                         (color-scale (get-sign-sentiment dataset d)))))
     (create-tooltips dataset)
-    (create-labels svg dimensions signs-ucode)
-    ;(.log js/console signs-ucode)
-    ;(.log js/console (into-array (vals signs-ucode)))
-    ))
+    (create-labels svg dimensions signs-ucode)))
 
 (defn extract-dataset
   [data]
