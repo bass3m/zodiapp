@@ -15,8 +15,9 @@
   []
   (let [margin    {:top 50 :right 0 :bottom 100 :left 30}
         width     (- 800 (+ (:left margin) (:right margin)))
-        height    (- 640 (+ (:top margin) (:bottom margin)))
-        grid-sz   (Math.floor (/ (min height width) 4))
+        height    (- 840 (+ (:top margin) (:bottom margin)))
+        grid-max  122
+        grid-sz   (min grid-max (Math.floor (/ (min height width) 4)))
         legend-sz (* 2 grid-sz)
         padding   2]
     {:margin    margin
@@ -66,35 +67,85 @@
   (-> dataset
       (get-sign-property sign "horoscope")))
 
+(defn create-rand-sentiment-data
+  [n]
+  (->> (repeatedly #(rand 0.6))
+       (map (fn [n] (if (< n 0.3) (* -1 n) (- n 0.3))))
+       (take n)))
+
+(defn create-history-bar-chart
+  [svg dataset]
+  (let [data (create-rand-sentiment-data 10)
+        width 120
+        height 100
+        data-range 0.3
+        x-scale (-> js/d3
+                    .-scale
+                    .ordinal
+                    (.domain (into-array (range (count data))))
+                    (.rangeRoundBands (array 0 width) 0.05))
+        y-scale (-> js/d3
+                    .-scale
+                    .linear
+                    (.clamp true)
+                    (.domain (array (- data-range) data-range))
+                    (.range (array 0 height)))
+        hist (.. svg
+                 (selectAll ".hist")
+                 (data (into-array data))
+                 (enter)
+                 (append "g")
+                 (attr "width" width)
+                 (attr "height" height)
+                 (attr "class" "hist")
+                 (attr "transform" (format "translate(%d, %d)" 380 400)))
+        ]
+    (.log js/console (into-array data))
+    (.. hist
+        (append "rect")
+        (attr "x" (fn [_ i] (x-scale i)))
+        (attr "y" (fn [d] (- height (y-scale d))))
+        (attr "width" (.rangeBand x-scale))
+        (attr "height" (fn [d] (y-scale d)))
+        (style "fill" "#ddd")))
+  )
+
 (defn create-tooltips
-  [dataset]
+  [el d dataset]
+  (.. js/d3
+      (select "#tooltip")
+      (style "left" (str (.. js/d3
+                             (select el)
+                             (attr "x")) "px"))
+      (style "top" (str (.. js/d3
+                            (select el)
+                            (attr "y")) "px"))
+      (select ".sign")
+      (html (format "<p><strong><em>%s : </em></strong></p><p>%s</p>"
+                    d (get-sign-horoscope dataset d)))
+      (transition)
+      (duration 2000)
+      (ease "linear")
+      (style "opacity" 0.3))
+  (.. js/d3
+      (select "#tooltip")
+      (classed "hidden" false)))
+
+(defn create-event-handlers
+  [svg dataset]
   (.. js/d3
       (selectAll "rect")
       (on "mouseover"
           (fn [d]
-            (this-as el
-                     (.. js/d3
-                         (select "#tooltip")
-                         (style "left" (str (.. js/d3
-                                                (select el)
-                                                (attr "x")) "px"))
-                         (style "top" (str (.. js/d3
-                                               (select el)
-                                               (attr "y")) "px"))
-                         (select ".sign")
-                         (html (format "<p><strong><em>%s : </em></strong></p><p>%s</p>"
-                                        d (get-sign-horoscope dataset d)))
-                         (transition)
-                         (duration 2000)
-                         (ease "linear")
-                         (style "opacity" 0.3)))
-            (.. js/d3
-                (select "#tooltip")
-                (classed "hidden" false))))
+            (this-as el (create-tooltips el d dataset))
+            (create-history-bar-chart svg dataset)))
       (on "mouseout" (fn [_]
                        (.. js/d3
                            (select "#tooltip")
-                           (classed "hidden" true))))))
+                           (classed "hidden" true))
+                       (.. js/d3
+                           (selectAll ".hist")
+                           (remove))))))
 
 (defn create-legend
   [svg dimensions colors]
@@ -221,9 +272,10 @@
         (attr "height" (:grid-sz dimensions))
         (style "fill" (fn [d]
                         (color-scale (get-sign-sentiment dataset d)))))
-    (create-tooltips dataset)
     (create-labels svg dimensions signs-ucode)
-    (create-legend svg dimensions colors)))
+    (create-legend svg dimensions colors)
+    (create-event-handlers svg dataset)
+    ))
 
 (defn extract-dataset
   [data]
