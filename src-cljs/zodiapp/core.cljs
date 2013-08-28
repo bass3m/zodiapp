@@ -13,9 +13,9 @@
 
 (defn get-dimesions
   []
-  (let [margin    {:top 50 :right 0 :bottom 100 :left 30}
-        width     (- 800 (+ (:left margin) (:right margin)))
-        height    (- 840 (+ (:top margin) (:bottom margin)))
+  (let [margin    {:top 70 :right 0 :bottom 100 :left 30}
+        width     (- 740 (+ (:left margin) (:right margin)))
+        height    (- 790 (+ (:top margin) (:bottom margin)))
         grid-max  122
         grid-sz   (min grid-max (Math.floor (/ (min height width) 4)))
         legend-sz (* 2 grid-sz)
@@ -98,8 +98,7 @@
                  (attr "width" width)
                  (attr "height" height)
                  (attr "class" "hist")
-                 (attr "transform" (format "translate(%d, %d)" 380 400)))
-        ]
+                 (attr "transform" (format "translate(%d, %d)" 380 400)))]
     (.log js/console (into-array data))
     (.. hist
         (append "rect")
@@ -107,19 +106,20 @@
         (attr "y" (fn [d] (- height (y-scale d))))
         (attr "width" (.rangeBand x-scale))
         (attr "height" (fn [d] (y-scale d)))
-        (style "fill" "#ddd")))
-  )
+        (style "fill" "#ddd"))))
 
 (defn create-tooltips
   [el d dataset]
   (.. js/d3
       (select "#tooltip")
-      (style "left" (str (.. js/d3
-                             (select el)
-                             (attr "x")) "px"))
-      (style "top" (str (.. js/d3
-                            (select el)
-                            (attr "y")) "px"))
+      (style "left" "30px")
+      (style "top" "520px")
+      ;(style "left" (str (.. js/d3
+                             ;(select el)
+                             ;(attr "x")) "px"))
+      ;(style "top" (str (.. js/d3
+                            ;(select el)
+                            ;(attr "y")) "px"))
       (select ".sign")
       (html (format "<p><strong><em>%s : </em></strong></p><p>%s</p>"
                     d (get-sign-horoscope dataset d)))
@@ -149,23 +149,18 @@
 
 (defn create-legend
   [svg dimensions colors]
-  (let [sad "☹ .. less lucky"
-        happy "more lucky .. ☺"
-        legend (.. svg
+  (let [legend (.. svg
                    (selectAll ".legend")
                    (data (into-array colors))
                    (enter)
                    (append "g")
                    (attr "class" "legend")
-                   (attr "transform" (format "translate(%d, %d)"
-                                      0
-                                      (+ (* 9 (:padding dimensions))
-                                         (* 3 (:grid-sz dimensions))))))]
+                   (attr "transform" (format "translate(%d, %d)" 0 -50)))]
     (.. legend
         (append "rect")
         (attr "x" (fn [_ i] (* (/ (:grid-sz dimensions) 4) i)))
         (attr "width" (/ (:grid-sz dimensions) 4))
-        (attr "height" (/ (:grid-sz dimensions) 8))
+        (attr "height" (/ (:grid-sz dimensions) 16))
         (style "fill" (fn [_ i] (colors i))))
     (.. legend
         (append "text")
@@ -173,25 +168,25 @@
         (text (fn [d i]
                 (cond
                   (= i 0) "☹"
-                  (= i 1) "less"
-                  (= i 2) "lucky"
-                  (= i 6) "more"
-                  (= i 7) "lucky"
-                  (= i 8) "☺"
-                  :default ".")))
+                  (= i 1) "←"
+                  (= i 2) "less"
+                  (= i 3) "lucky"
+                  (= i 5) "more"
+                  (= i 6) "lucky"
+                  (= i 7) "→"
+                  (= i 8) "☺")))
         (attr "x" (fn [_ i]
                     (cond
-                      (or (= i 0) (= i 8))
+                      (or (= i 0) (= i 1) (= i 2) (= i 3) (= i 7) (= i 8))
                           (+ (/ (:grid-sz dimensions) 14)
                              (* (/ (:grid-sz dimensions) 4) i))
-                      :default (* (/ (:grid-sz dimensions) 4) i))
-                    ))
-        (attr "y" (+ (/ (:grid-sz dimensions) 4)
-                     (* (:padding dimensions) 2)))
+                      :default (* (/ (:grid-sz dimensions) 4) i))))
+        (attr "y" (+ (/ (:grid-sz dimensions) 7)
+                     (* (:padding dimensions) 3)))
         (attr "font-size"
               (fn [_ i]
                 (cond
-                  (or (= i 0) (= i 8)) "22px"
+                  (or (= i 0) (= i 1) (= i 7) (= i 8)) "18px"
                   :default "10px")))
         (style "fill" (fn [_ i]
                         (cond
