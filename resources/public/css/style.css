@@ -1,0 +1,67 @@
+html,
+button,
+input,
+select,
+textarea {
+    color: #039;
+}
+body {
+    font-family: "geogrotesque_mdmedium", Helvetica, Arial, sans-serif;*/
+    font-size: 1em;
+    line-height: 1.4;
+    margin-left: 0;
+    padding-left: 0;
+    margin: auto;
+    background-attachment: fixed;
+    margin: auto;
+    background-size: cover;
+}
+.content {
+    padding: 15px 30px 20px;
+    float:left;
+    margin-left: 22%;
+    background-color: #c9c9c9;
+    width: 55%;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+}
+
+#tooltip {
+  left: 30px;
+  top: 520px;
+  position: absolute;
+  width: 350px;
+  height: auto;
+  padding: 8px;
+  background-color: white;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+#tooltip.hidden {
+  display: none;
+}
+#tooltip p {
+  margin: 0;
+  font-size: 0.8em;
+}
+
+.hist text {
+  text-anchor: end;
+  font-size: 10px;
+  line-height: 10px;
+}
+
+.sign {
+  fill: black;
+}
+.sign .symbol {
+  font-size: 24px;
+}
+.sign .date {
+  font-size: 11px;
+}

@@ -106,21 +106,24 @@
         (attr "y" (fn [d] (- height (y-scale d))))
         (attr "width" (.rangeBand x-scale))
         (attr "height" (fn [d] (y-scale d)))
-        (style "fill" "#ddd"))))
+        (style "fill" "#ddd"))
+    (.. hist
+        (append "text")
+        (attr "y" (fn [_ i] (+ 8 (x-scale i))))
+        (attr "x" (- (- height) 2)) ;; little padding
+        (text "8/22 M") ;; need actual dates here XXX
+        (attr "transform" "rotate(-90)"))))
 
 (defn create-tooltips
   [d dataset]
   (.. js/d3
       (select "#tooltip")
-      (style "left" "30px")
-      (style "top" "520px")
       (select ".sign")
       (html (format "<p><strong><em>%s : </em></strong></p><p>%s</p>"
                     d (get-sign-horoscope dataset d)))
       (transition)
       (duration 2000)
-      (ease "linear")
-      (style "opacity" 0.3))
+      (ease "linear"))
   (.. js/d3
       (select "#tooltip")
       (classed "hidden" false)))
@@ -212,23 +215,18 @@
       (append "text")
       (attr "class" "symbol")
       (text  (fn [d] (->> signs (filter d) first vals first)))
-      (attr "fill" "black")
-      (attr "font-size" "24px")
       (attr "x" (- (:grid-sz dimensions) 28))
       (attr "y" (- (:grid-sz dimensions) 8)))
     (.. sign
       (append "text")
       (attr "class" "name")
       (text (fn [d] (.substring d 0 2)))
-      (attr "fill" "black")
       (attr "x" 8)
       (attr "y" 18))
     (.. sign
       (append "text")
       (attr "class" "date")
       (text  (fn [d] (->> dates (filter d) first vals first)))
-      (attr "fill" "black")
-      (attr "font-size" "11px")
       (attr "x"  6)
       (attr "y" (- (:grid-sz dimensions) 12)))))
 
@@ -264,8 +262,7 @@
                         (color-scale (get-sign-sentiment dataset d)))))
     (create-labels svg dimensions signs-ucode)
     (create-legend svg dimensions colors)
-    (create-event-handlers svg dataset)
-    ))
+    (create-event-handlers svg dataset)))
 
 (defn extract-dataset
   [data]
