@@ -109,17 +109,11 @@
         (style "fill" "#ddd"))))
 
 (defn create-tooltips
-  [el d dataset]
+  [d dataset]
   (.. js/d3
       (select "#tooltip")
       (style "left" "30px")
       (style "top" "520px")
-      ;(style "left" (str (.. js/d3
-                             ;(select el)
-                             ;(attr "x")) "px"))
-      ;(style "top" (str (.. js/d3
-                            ;(select el)
-                            ;(attr "y")) "px"))
       (select ".sign")
       (html (format "<p><strong><em>%s : </em></strong></p><p>%s</p>"
                     d (get-sign-horoscope dataset d)))
@@ -137,7 +131,7 @@
       (selectAll "rect")
       (on "mouseover"
           (fn [d]
-            (this-as el (create-tooltips el d dataset))
+            (create-tooltips d dataset)
             (create-history-bar-chart svg dataset)))
       (on "mouseout" (fn [_]
                        (.. js/d3
@@ -183,6 +177,7 @@
                       :default (* (/ (:grid-sz dimensions) 4) i))))
         (attr "y" (+ (/ (:grid-sz dimensions) 7)
                      (* (:padding dimensions) 3)))
+        (attr "dy" ".35em")
         (attr "font-size"
               (fn [_ i]
                 (cond
