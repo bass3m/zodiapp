@@ -84,6 +84,8 @@
   [svg sign dataset]
   (let [width 120
         height 100
+        bar-x 375
+        bar-y 400
         data-range 0.35
         dates (into-array (reverse (map second (-> dataset second (aget sign)))))
         sents (into-array (reverse (get-sentiment-history dataset sign)))
@@ -106,7 +108,7 @@
                  (attr "width" width)
                  (attr "height" height)
                  (attr "class" "hist")
-                 (attr "transform" (format "translate(%d, %d)" 380 400)))]
+                 (attr "transform" (format "translate(%d, %d)" bar-x bar-y)))]
     (.log js/console sents)
     (.log js/console dates)
     (.. hist
@@ -118,7 +120,7 @@
         (style "fill" "#ddd"))
     (.. hist
         (append "text")
-        (attr "y" (fn [_ i] (+ 8 (x-scale i))))
+        (attr "y" (fn [_ i] (+ 12 (x-scale i))))
         (attr "x" (- (- height) 2)) ;; little padding
         (text (fn [_ i] (nth dates i)))
         (attr "transform" "rotate(-90)"))))
