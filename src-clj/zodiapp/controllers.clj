@@ -24,11 +24,13 @@
        (map (fn [h] (dissoc h :raw-sentiment)))))
 
 (defn all-zods
-  "check db first"
+  "If we already have today's horoscope then use today's stored entry."
   [_ ctx]
-  (or (m/get-todays ctx)
-      (-> ctx
-          z/get-horoscopes
-          (get-sentiments ctx)
-          (m/save-horoscopes ctx)
-          ((constantly (m/get-todays ctx))))))
+  (or (some->> (m/get-todays ctx)
+               ((juxt identity (partial m/get-histories ctx))))
+      (as-> ctx _
+          (z/get-horoscopes _)
+          (get-sentiments _ ctx)
+          (m/save-horoscopes _ ctx)
+          ((constantly (m/get-todays ctx)) _)
+          ((juxt identity (partial m/get-histories ctx)) _))))
