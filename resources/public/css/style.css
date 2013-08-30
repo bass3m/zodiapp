@@ -26,7 +26,7 @@ body {
     border-radius: 4px;
 }
 
-#tooltip {
+#fortune {
   left: 30px;
   top: 520px;
   position: absolute;
@@ -42,10 +42,10 @@ body {
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
   pointer-events: none;
 }
-#tooltip.hidden {
+#fortune.hidden {
   display: none;
 }
-#tooltip p {
+#fortune p {
   margin: 0;
   font-size: 0.8em;
 }

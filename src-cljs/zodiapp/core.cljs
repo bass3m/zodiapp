@@ -52,6 +52,7 @@
 (defn get-sign-property
   [dataset sign property]
   (-> dataset
+      first
       (aget sign)
       first
       (aget property)))
@@ -73,16 +74,23 @@
        (map (fn [n] (if (< n 0.3) (* -1 n) (- n 0.3))))
        (take n)))
 
+(defn get-sentiment-history
+  [dataset sign]
+  (map (fn [i]
+         (-> i first first .-sentiment))
+       (-> dataset second (aget sign))))
+
 (defn create-history-bar-chart
-  [svg dataset]
-  (let [data (create-rand-sentiment-data 10)
-        width 120
+  [svg sign dataset]
+  (let [width 120
         height 100
-        data-range 0.3
+        data-range 0.35
+        dates (into-array (reverse (map second (-> dataset second (aget sign)))))
+        sents (into-array (reverse (get-sentiment-history dataset sign)))
         x-scale (-> js/d3
                     .-scale
                     .ordinal
-                    (.domain (into-array (range (count data))))
+                    (.domain (into-array (range (count dates))))
                     (.rangeRoundBands (array 0 width) 0.05))
         y-scale (-> js/d3
                     .-scale
@@ -92,14 +100,15 @@
                     (.range (array 0 height)))
         hist (.. svg
                  (selectAll ".hist")
-                 (data (into-array data))
+                 (data sents)
                  (enter)
                  (append "g")
                  (attr "width" width)
                  (attr "height" height)
                  (attr "class" "hist")
                  (attr "transform" (format "translate(%d, %d)" 380 400)))]
-    (.log js/console (into-array data))
+    (.log js/console sents)
+    (.log js/console dates)
     (.. hist
         (append "rect")
         (attr "x" (fn [_ i] (x-scale i)))
@@ -111,13 +120,13 @@
         (append "text")
         (attr "y" (fn [_ i] (+ 8 (x-scale i))))
         (attr "x" (- (- height) 2)) ;; little padding
-        (text "8/22 M") ;; need actual dates here XXX
+        (text (fn [_ i] (nth dates i)))
         (attr "transform" "rotate(-90)"))))
 
-(defn create-tooltips
+(defn create-fortunes
   [d dataset]
   (.. js/d3
-      (select "#tooltip")
+      (select "#fortune")
       (select ".sign")
       (html (format "<p><strong><em>%s : </em></strong></p><p>%s</p>"
                     d (get-sign-horoscope dataset d)))
@@ -125,7 +134,7 @@
       (duration 2000)
       (ease "linear"))
   (.. js/d3
-      (select "#tooltip")
+      (select "#fortune")
       (classed "hidden" false)))
 
 (defn create-event-handlers
@@ -134,11 +143,11 @@
       (selectAll "rect")
       (on "mouseover"
           (fn [d]
-            (create-tooltips d dataset)
-            (create-history-bar-chart svg dataset)))
+            (create-fortunes d dataset)
+            (create-history-bar-chart svg d dataset)))
       (on "mouseout" (fn [_]
                        (.. js/d3
-                           (select "#tooltip")
+                           (select "#fortune")
                            (classed "hidden" true))
                        (.. js/d3
                            (selectAll ".hist")
