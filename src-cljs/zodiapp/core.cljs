@@ -82,24 +82,30 @@
 
 (defn create-history-bar-chart
   [svg sign dataset]
-  (let [width 120
-        height 100
+  (let [width 122  ;; grid size / 4
+        height 120
         bar-x 375
-        bar-y 400
+        bar-y 385
         data-range 0.35
-        dates (into-array (reverse (map second (-> dataset second (aget sign)))))
-        sents (into-array (reverse (get-sentiment-history dataset sign)))
+        dates (into-array (map second (-> dataset second (aget sign))))
+        sents (into-array (get-sentiment-history dataset sign))
         x-scale (-> js/d3
-                    .-scale
-                    .ordinal
-                    (.domain (into-array (range (count dates))))
-                    (.rangeRoundBands (array 0 width) 0.05))
-        y-scale (-> js/d3
                     .-scale
                     .linear
                     (.clamp true)
                     (.domain (array (- data-range) data-range))
                     (.range (array 0 height)))
+        y-scale (-> js/d3
+                    .-scale
+                    .ordinal
+                    (.domain (into-array (range (count dates))))
+                    (.rangeRoundBands (array 0 width) 0.05))
+        x-axis (-> js/d3
+                   .-svg
+                   .axis
+                   (.scale x-scale)
+                   (.orient "bottom")
+                   (.ticks 0))
         hist (.. svg
                  (selectAll ".hist")
                  (data sents)
@@ -109,21 +115,31 @@
                  (attr "height" height)
                  (attr "class" "hist")
                  (attr "transform" (format "translate(%d, %d)" bar-x bar-y)))]
-    (.log js/console sents)
-    (.log js/console dates)
     (.. hist
         (append "rect")
-        (attr "x" (fn [_ i] (x-scale i)))
-        (attr "y" (fn [d] (- height (y-scale d))))
-        (attr "width" (.rangeBand x-scale))
-        (attr "height" (fn [d] (y-scale d)))
+        (attr "y" (fn [_ i] (y-scale i)))
+        (attr "x" 0)
+        (attr "height" (.rangeBand y-scale))
+        (attr "width" (fn [d] (x-scale d)))
         (style "fill" "#ddd"))
     (.. hist
         (append "text")
-        (attr "y" (fn [_ i] (+ 12 (x-scale i))))
-        (attr "x" (- (- height) 2)) ;; little padding
-        (text (fn [_ i] (nth dates i)))
-        (attr "transform" "rotate(-90)"))))
+        (attr "y" (fn [_ i] (+ 12 (y-scale i))))
+        (attr "x" 40) ;; embed text inside bar and give a little padding
+        (text (fn [_ i] (nth dates i))))
+    (.. svg
+        (append "g")
+        (attr "class" "axis")
+        (attr "transform" (format "translate(%d, %d)" bar-x (+ height bar-y)))
+        (call x-axis))
+    (.. svg
+        (append "text")
+        (attr "x" (+ bar-x (/ width 2)))
+        (attr "y" (+ height bar-y 13))
+        (attr "class" "axis-label")
+        (style "text-anchor" "middle")
+        (style "font-size" ".65em")
+        (text "this past week"))))
 
 (defn create-fortunes
   [d dataset]
@@ -153,6 +169,12 @@
                            (classed "hidden" true))
                        (.. js/d3
                            (selectAll ".hist")
+                           (remove))
+                       (.. js/d3
+                           (selectAll ".axis")
+                           (remove))
+                       (.. js/d3
+                           (selectAll ".axis-label")
                            (remove))))))
 
 (defn create-legend

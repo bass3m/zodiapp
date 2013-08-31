@@ -6,7 +6,7 @@ textarea {
     color: #039;
 }
 body {
-    font-family: "geogrotesque_mdmedium", Helvetica, Arial, sans-serif;*/
+    font-family: "geogrotesque_mdmedium", Helvetica, Arial, sans-serif;
     font-size: 1em;
     line-height: 1.4;
     margin-left: 0;
@@ -56,6 +56,16 @@ body {
   line-height: 10px;
 }
 
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #999;
+  shape-rendering: crispEdges;
+}
+.axis text {
+  font-family: "geogrotesque_mdmedium", Helvetica, Arial, sans-serif;
+  font-size: .65em;
+}
 .sign {
   fill: black;
 }
@@ -65,3 +75,4 @@ body {
 .sign .date {
   font-size: 11px;
 }
+
