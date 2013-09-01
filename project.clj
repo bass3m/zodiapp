@@ -24,5 +24,7 @@
           :compiler {
             :output-to "resources/public/js/main.js"
             :optimizations :whitespace
-            :pretty-print true}}]})
-
+            :pretty-print true}}]}
+  :repl-options {
+  :prompt (fn [ns] (str "\u001B[35m[\u001B[34m" ns "\u001B[35m]\u001B[33mclj-λ)\u001B[m " ))
+  :welcome (println "Welcome to Clojure!")})
