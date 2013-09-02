@@ -42,8 +42,8 @@
   (.. js/d3
       (select "#horoscope")
       (append "svg")
-      (attr "width" (:width dimensions))
-      (attr "height" (:height dimensions))
+      (attr "viewBox" (format "0 0 %d %d" (:width dimensions) (:height dimensions)))
+      (attr "preserveAspectRatio" "xMidYMid meet");
       (append "g")
       (attr "transform" (format "translate(%d, %d)"
                                 (-> dimensions :margin :left)
