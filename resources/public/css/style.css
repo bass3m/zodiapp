@@ -15,20 +15,20 @@ body {
     background-attachment: fixed;
     margin: auto;
     background-size: cover;
+    background-color: #eee;
 }
-.content {
+.container {
     padding: 15px 30px 20px;
-    float:left;
     margin-left: 22%;
-    background-color: #c9c9c9;
-    width: 55%;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.15);
-    border-radius: 4px;
+    background-color: #eee;
 }
-
+#horoscope {
+  max-width: 710px;
+  max-height: 620px;
+}
 #fortune {
-  left: 30px;
-  top: 520px;
+  left: 26.3%;
+  top: 69%;
   position: absolute;
   width: 350px;
   height: auto;
@@ -49,13 +49,11 @@ body {
   margin: 0;
   font-size: 0.8em;
 }
-
 .hist text {
   text-anchor: end;
   font-size: 10px;
   line-height: 10px;
 }
-
 .axis path,
 .axis line {
   fill: none;
@@ -75,4 +73,3 @@ body {
 .sign .date {
   font-size: 11px;
 }
-
